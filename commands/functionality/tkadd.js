@@ -40,7 +40,7 @@ module.exports = {
     const time = new Date().toLocaleString("en-US", {
       timeZone: "America/Los_Angeles",
     });
-    const count = await TeamKill.countDocuments();
+    const count = await TeamKill.countDocuments({ guildId: guildId });
     const customId = count + 1;
 
     if (video && !isValidUrl(video)) {
