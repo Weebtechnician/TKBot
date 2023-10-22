@@ -32,43 +32,48 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const killer = interaction.options.getUser("killer");
-    const victim = interaction.options.getUser("victim");
-    const explanation = interaction.options.getString("explanation");
-    const video = interaction.options.getString("video");
-    const guildId = interaction.guildId;
-    const time = new Date().toLocaleString("en-US", {
-      timeZone: "America/Los_Angeles",
-    });
-    const count = await TeamKill.countDocuments({ guildId: guildId });
-    const customId = count + 1;
+    try {
+      const killer = interaction.options.getUser("killer");
+      const victim = interaction.options.getUser("victim");
+      const explanation = interaction.options.getString("explanation");
+      const video = interaction.options.getString("video");
+      const guildId = interaction.guildId;
 
-    if (video && !isValidUrl(video)) {
-      await interaction.reply("Please provide a valid video URL.");
-      return;
+      if (video && !isValidUrl(video)) {
+        await interaction.reply("Please provide a valid video URL.");
+        return;
+      }
+
+      const customId = await getNextCustomId();
+      const time = new Date().toLocaleString("en-US", {
+        timeZone: "America/Los_Angeles",
+      });
+
+      const teamKill = new TeamKill({
+        customId,
+        killer: killer.username,
+        victim: victim.username,
+        explanation,
+        video,
+        time,
+        guildId,
+      });
+
+      await teamKill.save();
+
+      let response = buildResponse(killer, victim, time, explanation, video);
+      await interaction.reply(response);
+    } catch (error) {
+      console.error("Error adding teamkill: ", error);
+      await interaction.reply("An error occurred while adding the teamkill.");
     }
-
-    const teamKill = new TeamKill({
-      customId: customId,
-      killer: killer.username,
-      victim: victim.username,
-      explanation: explanation,
-      video: video,
-      time: time,
-      guildId: guildId,
-    });
-
-    await teamKill.save();
-
-    let response = `${killer} killed ${victim} on ${time}. Explanation: ${explanation}`;
-
-    if (video) {
-      response += `\nVideo: ${video}`;
-    }
-
-    await interaction.reply(response);
   },
 };
+
+async function getNextCustomId() {
+  const count = await TeamKill.countDocuments();
+  return count + 1;
+}
 
 function isValidUrl(string) {
   try {
@@ -77,4 +82,14 @@ function isValidUrl(string) {
   } catch (_) {
     return false;
   }
+}
+
+function buildResponse(killer, victim, time, explanation, video) {
+  let response = `${killer} killed ${victim} on ${time}. Explanation: ${explanation}`;
+
+  if (video) {
+    response += `\nVideo: ${video}`;
+  }
+
+  return response;
 }
