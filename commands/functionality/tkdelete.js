@@ -1,13 +1,22 @@
+// Import environment variables from .env file
 require("dotenv").config();
+
+// Import required packages
 const { SlashCommandBuilder } = require("discord.js");
 const mongoose = require("mongoose");
+
+// Connect to MongoDB using credentials from environment variables
 mongoose.connect(process.env.MONGODB, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+// Import TeamKill model
 const TeamKill = require("../../models/teamKillModel.js");
 
+// Export the module
 module.exports = {
+  // Define command structure
   data: new SlashCommandBuilder()
     .setName("tkdelete")
     .setDescription("Delete a teamkill record from the database")
@@ -27,15 +36,22 @@ module.exports = {
         .setDescription("Delete all teamkill records from the database")
     ),
 
+  // Define command execution logic
   async execute(interaction) {
+    // Extract guild ID
     const guildId = interaction.guildId;
+
+    // Initialize filter with guild ID
     let filter = { guildId: guildId };
+
+    // Extract options from the interaction
     const id = interaction.options.getInteger("id");
     const user = interaction.options.getUser("user");
     const all = interaction.options.getBoolean("all");
 
+    // Handle the case where ID is provided
     if (id) {
-      filter.customId = id; // Add this line to include ID in the filter
+      filter.customId = id;
       try {
         const result = await TeamKill.deleteOne(filter);
 
@@ -47,13 +63,17 @@ module.exports = {
           await interaction.reply(`No teamkill record found with ID ${id}.`);
         }
       } catch (error) {
+        // Log and reply with an error message in case of an exception
         console.error(error);
         await interaction.reply(
           "There was an error trying to delete the teamkill record."
         );
       }
-    } else if (user) {
-      filter.killer = user.username; // Include the username in the filter while keeping the guildId
+    }
+
+    // Handle the case where a user is specified
+    else if (user) {
+      filter.killer = user.username;
       try {
         const result = await TeamKill.deleteMany(filter);
 
@@ -72,9 +92,12 @@ module.exports = {
           "There was an error trying to delete the teamkill records."
         );
       }
-    } else if (all) {
+    }
+
+    // Handle the case where all records are to be deleted
+    else if (all) {
       try {
-        const result = await TeamKill.deleteMany(filter); // Just use filter with guildId to delete all records in the guild
+        const result = await TeamKill.deleteMany(filter);
         await interaction.reply(
           `${result.deletedCount} teamkill record(s) have been deleted.`
         );
@@ -84,7 +107,10 @@ module.exports = {
           "There was an error trying to delete all teamkill records."
         );
       }
-    } else {
+    }
+
+    // Reply with an error message if none of the above cases are met
+    else {
       await interaction.reply(
         "Please specify an ID, user, or choose to delete all records."
       );
