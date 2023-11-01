@@ -48,6 +48,7 @@ module.exports = {
       const explanation = interaction.options.getString("explanation");
       const video = interaction.options.getString("video");
       const guildId = interaction.guildId;
+      const count = await TeamKill.countDocuments({ guildId: guildId });
 
       // Validating video URL
       if (video && !isValidUrl(video)) {
@@ -56,7 +57,7 @@ module.exports = {
       }
 
       // Getting the next available custom ID
-      const customId = await getNextCustomId();
+      const customId = count + 1;
 
       // Getting the current time
       const time = new Date().toLocaleString("en-US", {
@@ -94,13 +95,6 @@ module.exports = {
     }
   },
 };
-
-// Function to get the next available custom ID
-async function getNextCustomId() {
-  // Counting existing documents to determine the next ID
-  const count = await TeamKill.countDocuments({ guildId: guildId });
-  return count + 1;
-}
 
 // Function to validate the URL format
 function isValidUrl(string) {
