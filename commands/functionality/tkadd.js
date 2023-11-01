@@ -47,7 +47,9 @@ module.exports = {
       const victim = interaction.options.getUser("victim");
       const explanation = interaction.options.getString("explanation");
       const video = interaction.options.getString("video");
+      // Get the guild ID for Discord server
       const guildId = interaction.guildId;
+      // Filter documents by Discord server
       const count = await TeamKill.countDocuments({ guildId: guildId });
 
       // Validating video URL
