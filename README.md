@@ -6,10 +6,10 @@ Teamkill tracker for games like Escape From Tarkov. Add, remove, and list teamki
 
 ## NPM Dependancies
 
-discord.js
-dotenv
-express(heroku did not want to play nice unless I used express)
-mongoose
+### discord.js
+### dotenv
+### express(heroku did not want to play nice unless I used express)
+### mongoose
 
 ## Commands
 
