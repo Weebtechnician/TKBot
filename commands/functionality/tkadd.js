@@ -69,10 +69,13 @@ module.exports = {
         killer: killer.username,
         victim: victim.username,
         explanation,
-        video,
         time,
         guildId,
       });
+
+      if (video) {
+        teamKill.video = video;
+      }
 
       // Saving the TeamKill record to the database
       await teamKill.save();
@@ -95,7 +98,7 @@ module.exports = {
 // Function to get the next available custom ID
 async function getNextCustomId() {
   // Counting existing documents to determine the next ID
-  const count = await TeamKill.countDocuments();
+  const count = await TeamKill.countDocuments({ guildId: guildId });
   return count + 1;
 }
 
