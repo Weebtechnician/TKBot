@@ -64,7 +64,7 @@ module.exports = {
     }
 
     // Validating input options
-    if (!killer && !victim && !explanation) {
+    if (!killer && !victim && !explanation && !video) {
       await interaction.reply(
         "You must specify a killer, victim, or explanation."
       );
